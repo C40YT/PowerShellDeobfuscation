@@ -12,10 +12,11 @@ using System.IO;
 namespace PowershellDeobfuscation
 {
 
+    // 表示一个AST树的节点
     public class AstNode
     {
         public Ast ast;
-        public enum NodeType { originNode, replaceNode, pipeNode, cleanPipeNode }; // 
+        public enum NodeType { originNode, replaceNode, pipeNode, cleanPipeNode }; // 定义了类别主要是对pipeNode进行处理
         public NodeType type;
 
         public AstNode parent = null;
@@ -45,6 +46,7 @@ namespace PowershellDeobfuscation
         public double matched = 0;
         // ===============
 
+        // 通过AST节点构造自定义树的节点
         public AstNode(Ast ast)
         {
             this.ast = ast;
@@ -54,6 +56,7 @@ namespace PowershellDeobfuscation
             }
             else
             {
+                // 对于所有非PipelineAst节点来说均定义为originNode
                 type = NodeType.originNode;
             }
         }
@@ -143,16 +146,20 @@ namespace PowershellDeobfuscation
         }
     }
 
+    // 表示一个AST树，用来存储AST
     public class AstTree
     {
-        public AstNode root;
-        public List<AstNode> nodeList = new List<AstNode>();
+        public AstNode root;    //树结构的root
+        public List<AstNode> nodeList = new List<AstNode>(); //存储所有AST节点的链表
         public enum TreeType { basic, pipeSubTree };
         public TreeType type = TreeType.basic;
 
+        // 对脚本进行解析，得到数结构存储的 AST语法树木
         public AstTree(string script)
         {
+            // 首先对符号 ` 进行处理，做清理操作
             script = Preprocess(script);
+            // 提取AST语法树
             ScriptBlockAst sb = System.Management.Automation.Language.Parser.ParseInput(script, out Token[] tokens, out ParseError[] errors);
             IEnumerable<Ast> astnodes = sb.FindAll(delegate (Ast t) { return true; }, true);
             List<Ast> astnodeList = astnodes.ToList<Ast>();
@@ -280,6 +287,7 @@ namespace PowershellDeobfuscation
             AddSubTree(parent, replacedScript, index);
         }
 
+        // 将Ast语法树用树的结构进行存储，通过hash判断父子关系
         public void ConstructTree(List<Ast> astnodeList)
         {
             root = new AstNode(astnodeList[0]);
@@ -492,6 +500,7 @@ namespace PowershellDeobfuscation
             }
         }
 
+        // 将pipeNode节点的指令以 string 形式进行存储
         public void InitCommands(AstNode root)
         {
             if (root.pipeNodeCount > 0 || root.type == AstNode.NodeType.pipeNode)
@@ -503,6 +512,7 @@ namespace PowershellDeobfuscation
             }
         }
 
+        // 计算每个AST节点对应其子节点的PipeNode节点数量
         public void InitPipeSubTree()
         {
             CountPipeNode(root);

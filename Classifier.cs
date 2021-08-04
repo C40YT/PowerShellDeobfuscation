@@ -35,6 +35,7 @@ namespace PowershellDeobfuscation
             initPredEngine();
         }
 
+        // 判断是否被混淆了，实际在Predict中预测
         public ClassifierResult testWithModel(AstData sampleData)
         {
             AstPrediction result = predEngine.Predict(sampleData);
