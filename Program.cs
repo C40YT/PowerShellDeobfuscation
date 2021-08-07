@@ -38,8 +38,10 @@ namespace PowershellDeobfuscation
 
             tree.InitPipeSubTree();
 
+            // model是用于判别有无混淆的模型，如果有混淆则会尝试解混淆处理
             TraverseSubTree traverser = new TraverseSubTree(modelPath);
             traverser.TraverseCheckPipeSubtree(tree);
+            // 最终tree中所有的PipeNode节点都会被处理分析，然后向上更新得到updatedCommand
             Console.Out.WriteLine(tree.root.updatedCommand);
         }
     }

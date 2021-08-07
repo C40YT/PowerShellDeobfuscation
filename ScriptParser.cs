@@ -20,6 +20,7 @@ namespace PowershellDeobfuscation
         {
 
         }
+        // 提取token长度和平均长度信息以及ast类别信息
         public ScriptParser(String sampleScript)
         {
             this.sampleScript = sampleScript;
@@ -27,6 +28,7 @@ namespace PowershellDeobfuscation
             TokenParser();
         }
 
+        // 从脚本中提取ast type信息
         public void AstParser()
         {
             ScriptBlockAst sb = System.Management.Automation.Language.Parser.ParseInput(sampleScript, out tokens, out ParseError[] errors);
@@ -43,6 +45,7 @@ namespace PowershellDeobfuscation
             }
         }
 
+        // 计算最大的token长度和平均长度
         public void TokenParser()
         {
             foreach (var s in tokens)
@@ -55,6 +58,7 @@ namespace PowershellDeobfuscation
             meanTokenLength /= tokens.Length;
         }
 
+        // 计算熵
         public static double ShannonEntropy(string s)
         {
             var map = new Dictionary<char, int>();

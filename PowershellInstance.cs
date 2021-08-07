@@ -20,6 +20,8 @@ namespace PowershellDeobfuscation
 
         }
 
+        // 核心去混淆的代码，通过 PowerShell.Create()创建实例，然后对这部分Ast类型为PipeAst的脚本执行之后得到去混淆的结果
+        // 返回执行得到的脚本字符串，一次作为新的脚本
         public string addScript(string script)
         {
             psInstance.AddScript(script);
@@ -44,6 +46,7 @@ namespace PowershellDeobfuscation
             return output.ToString();
         }
 
+        // deprecated，直接运行脚本
         public static void RunScript(string scripts)
         {
             try

@@ -5,6 +5,7 @@ using System.IO;
 
 namespace PowershellDeobfuscation
 {
+    // 这个类主要是用来获取脚本的特征信息，包含了powershell脚本中各个ast种类的数量，脚本的熵，脚本长度，最大token长度和平均token长度的信息
     public class Script2Vector
     {
         public static TextWriter Out = Console.Out;
@@ -24,17 +25,21 @@ namespace PowershellDeobfuscation
         List<double> featureVectorB = new List<double>(); // Feature 2. Entropy, mean length,
 
 
+        // 获取powershell脚本的熵，脚本长度，最大token长度和平均token长度的信息
         public Script2Vector(string script)
         {
             // init Ast Features
+            // 对ast类型进行计数处理
             ScriptParser ast = new ScriptParser(script);
             AST2Vector(ast.asttypeList);
 
             // init Character Features
+            // 计算得到脚本的熵和脚本的长度
             featureVectorB.Add(ScriptParser.ShannonEntropy(script));
             featureVectorB.Add(script.Length);
 
             // init Token Features
+            // 计算得到token的最大长度和平均长度
             featureVectorB.Add(ast.maxTokenLength);
             featureVectorB.Add(ast.meanTokenLength);
         }
@@ -51,6 +56,7 @@ namespace PowershellDeobfuscation
             return sb.ToString();
         }
 
+        // 将特征转化为字符串表示的数组
         public string ToAStString()
         {
             StringBuilder sb = new StringBuilder();

@@ -22,10 +22,12 @@ namespace PowershellDeobfuscation
         public AstNode parent = null;
         public List<AstNode> childList = new List<AstNode>();
 
-        // For PipeSubTree
-        public int pipeNodeCount = 0; // the count of pipeNode in subtree
-        public string command = "";
-        public string updatedCommand = "";
+        // For PipeSubTree，将返回更新处理完的节点command值
+        // 该节点构成的树中，除了该节点外所有孩子节点的PipeNode总数
+        // 如果该值为0，则可以将该节点包含的所有子节点忽略，只留下当前节点
+        public int pipeNodeCount = 0; 
+        public string command = ""; //  原本的command
+        public string updatedCommand = "";  // 更新完后的command
 
         public class ReplaceSet
         {
@@ -252,6 +254,7 @@ namespace PowershellDeobfuscation
             }
         }
 
+        // 将一个节点以及其所有的子节点都从AstTree中删除
         public int RemoveSubTree(AstNode parent, AstNode node)
         {
             int indexOfNode = parent.childList.IndexOf(node);
@@ -275,6 +278,7 @@ namespace PowershellDeobfuscation
             return indexOfNode;
         }
 
+        // 用新的AstTree替换当中的某个AstNode节点对应的AstTree
         public void ReplaceSubTree(AstNode parent, AstNode originalNode, AstTree replacedTree)
         {
             int index = RemoveSubTree(parent, originalNode);
@@ -385,6 +389,7 @@ namespace PowershellDeobfuscation
             return pipeNodeList;
         }
 
+        // 遍历所有子节点，获取其中类型为PipeNode的Ast节点
         public static Queue<AstNode> FindAllPipeNodeInSubTree(AstNode root)
         {
             Queue<AstNode> pipeQueue = new Queue<AstNode>();
@@ -413,6 +418,7 @@ namespace PowershellDeobfuscation
             return Tree2Feature(tree.root);
         }
 
+        // 在自定义的AstNode中(AstTree对应的AstNode)计算这部分Node的特征
         public static AstData Tree2Feature(AstNode node)
         {
             string command = "";
@@ -429,6 +435,7 @@ namespace PowershellDeobfuscation
         }
 
         // For PipeSubTree
+        // deprecated，并没有通过这种方法来获取command而是直接通过text来获取command
         public string GetCommand(AstNode node)
         {
             StringBuilder sb = new StringBuilder();
@@ -456,6 +463,7 @@ namespace PowershellDeobfuscation
             return sb.ToString();
         }
 
+        // 递归处理返回其子节点中所有PipeNode的数量
         public int CountPipeNode(AstNode node)
         {
             int count = 0;
@@ -474,6 +482,7 @@ namespace PowershellDeobfuscation
             return count;
         }
 
+        // 对node的所有子节点进行清理，只保留当前节点（当该节点的所有子PipeNode节点都已被审查之后会调用这个函数)
         public void Shrink(AstNode node)
         {
             List<AstNode> tempList = new List<AstNode>(node.childList);
@@ -485,6 +494,7 @@ namespace PowershellDeobfuscation
             node.childList.Clear();
         }
 
+        // 对于子节点不包含PipeNode的节点，其子节点可以被忽略，只用保留该节点的信息即可
         public void CompressTree(AstNode root)
         {
             if (root.pipeNodeCount == 0)
@@ -513,6 +523,8 @@ namespace PowershellDeobfuscation
         }
 
         // 计算每个AST节点对应其子节点的PipeNode节点数量
+        // 将pipeNode节点的指令以 string 形式进行存储
+        // 对于子节点不包含PipeNode的节点，其子节点可以被忽略，只用保留该节点的信息即可
         public void InitPipeSubTree()
         {
             CountPipeNode(root);
